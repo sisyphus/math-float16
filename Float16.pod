@@ -28,31 +28,20 @@
 
  my $val = '1.41416';
  my $obj = Math::Float16->new($val);
- print "$obj\n"; # prints 1.414.
+ print "$obj\n"; # prints 1.4141.
 
- All input values are effectively cast to a  _Float16 value, rounded
+ All input values are effectively cast to a _Float16 value, rounded
  to nearest, with ties to even.
 
- NOTE !!!!!!! :
-  If you want to assign a specific value (eg 1.96500000000000014e2)
-  it is better to assign it as a PV. It will then be rounded only
-  once to a  _Float16. If you first assign that value to something else
-  (eg an NV), and then assign it to a Math::Float16 object, the
-  value can be rounded twice. In the following example the value is
-  firstly rounded to an NV, and secondly from the NV to the 11-bit
-  precision Math::Float16 object. EXAMPLE (assuming that the NV
-  is of type 'double'):
+ If you want to assign a specific value it is better to assign it as
+ a PV. It will then be rounded only once. If you assign it as something
+ else (eg an NV) then it will be rounded twice - once when the value is
+ assigned to the NV, and again when the NV is assigned to the
+ Math::Float16 object.
 
-   my $pv = '1.96500000000000014e2';
-   my $nv =  1.96500000000000014e2 ;
-   print Math::Float16->new($pv); # 1.97e2 (rounded only once)
-   print Math::Float16->new($nv); # 1.96e2 (rounded twice)
-
-  Mostly it won't matter, but we see here that it sometimes can.
-
- The  _Float16 has only 8 bits of precision.
- Maximum finite value is 3.39e38.
- Minimum positive non-zero value is 9.184-41.
+ The  _Float16 has 11 bits of precision.
+ Maximum finite value is 6.5504e4.
+ Minimum positive non-zero value is 5.9605e-8.
 
 =head1 ASSIGNMENT FUNCTIONS
 
@@ -123,8 +112,8 @@
     For example, unpack denorm min and +Inf:
       print unpack_f16_hex(Math::Bfloat->new(0);          # 0000
       print unpack_f16_hex(Math::Bfloat->new('-0');       # 8000
-      print unpack_f16_hex(Math::Bfloat->new(2) ** -133); # 0001
-      print unpack_f16_hex(Math::Bfloat->new(2) ** 128);  # 7F80 (+inf)
+      print unpack_f16_hex(Math::Bfloat->new(2) ** -24);  # 0001
+      print unpack_f16_hex(Math::Bfloat->new(2) ** 16);   # 7C00 (+inf)
 
 =head1 MISCELLANEOUS FUNCTIONS
 
