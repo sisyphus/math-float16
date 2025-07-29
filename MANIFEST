@@ -1,0 +1,15 @@
+MANIFEST
+CHANGES
+Makefile.PL
+Float16.pm
+Float16.pod
+Float16.xs
+have_float16.in
+t/inf.t
+t/new.t
+t/next.t
+t/overload_arith.t
+t/overload_cmp.t
+t/subnormal.t
+README
+typemap

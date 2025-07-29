@@ -1,0 +1,9 @@
+#include <stdio.h>
+
+int main(void) {
+ int s;
+ s = (int)sizeof( _Float16);
+ printf("%d", s);
+ return 0;
+}
+

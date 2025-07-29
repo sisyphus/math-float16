@@ -1,0 +1,29 @@
+########################
+# Module Math::Float16 #
+########################
+
+Currently, this module builds only on 64-bit builds of perl. This might
+be fixedin the future but, for now, the build aborts (with the
+appropriate explanation) if one tries to build it on a 32-bit perl.
+
+To build this module you need to have a perl that is at version 5.32 or
+later, and that has been built by a compiler that supports the  _Float16 type.
+
+You additionally need to have installed Math-MPFR-4.43 or later, and also
+version 4.3.0 (or later) of the mpfr C library (https://www.mpfr.org).
+A further requirement is that Math::MPFR was built against version 4.3.0
+(or later) of the mpfr library.
+Note that the mpfr library depends upon the gmp library from
+https://gmplib.org, so gmp also needs to be installed.
+
+At time of writing (22.07.25) the latest stable version of mpfr is 4.2.2.
+Until 4.3.0 is released, the mpfr library therefore needs to be built from
+mpfr's current gitlab repo at https://gitlab.inria.fr/mpfr/mpfr, where the
+version that resides there calls itself 4.3.0-dev.
+
+The Makefile.PL checks that all of these requirements are met, and aborts
+with the appropriate explanation when they are not.
+
+Please report any bugs to https://github.com/sisyphus/math-float16/issues.
+
+
