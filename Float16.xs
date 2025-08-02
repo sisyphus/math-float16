@@ -100,7 +100,7 @@ SV * _fromFloat16(pTHX_  _Float16 * in) {
   SV * obj_ref, * obj;
 
   Newx(f_obj, 1,  _Float16);
-  if(f_obj == NULL) croak("Failed to allocate memory in _fromNV function");
+  if(f_obj == NULL) croak("Failed to allocate memory in _fromFloat16 function");
   obj_ref = newSV(0);
   obj = newSVrv(obj_ref, "Math::Float16");
 
