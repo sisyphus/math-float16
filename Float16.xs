@@ -557,7 +557,7 @@ SV * _oload_sqrt(pTHX_  _Float16 * a, SV * second, SV * third) {
   return obj_ref;
 }
 
-void unpack_f16_hex(pTHX_  _Float16 * f) {
+void _unpack_f16_hex(pTHX_  _Float16 * f) {
   dXSARGS;
   int i;
   char * buff;
@@ -934,13 +934,13 @@ CODE:
 OUTPUT:  RETVAL
 
 void
-unpack_f16_hex (f)
+_unpack_f16_hex (f)
 	_Float16 *	f
         PREINIT:
         I32* temp;
         PPCODE:
         temp = PL_markstack_ptr++;
-        unpack_f16_hex(aTHX_ f);
+        _unpack_f16_hex(aTHX_ f);
         if (PL_markstack_ptr != temp) {
           /* truly void, because dXSARGS not invoked */
           PL_markstack_ptr = temp;

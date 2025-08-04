@@ -252,6 +252,11 @@ sub f16_nextbelow {
   }
 }
 
+sub unpack_f16_hex {
+  my @ret = _unpack_f16_hex($_[0]);
+  return join('', @ret);
+}
+
 sub _get_norm_max {
   my $ret = 0;
   for my $p(1 .. f16_MANTBITS) { $ret += 2 ** (f16_EMAX - $p) }
