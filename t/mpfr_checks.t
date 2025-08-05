@@ -13,8 +13,10 @@ use constant EMAX_MOD  => f16_EMAX;
 
 if($Math::MPFR::VERSION < 4.44) {
   warn "\n Aborting this test script:\n",
-       " This test script needs Math-MPFR-4.44 but we have only version $Math::MPFR::VERSION\n";
+       " This test script needs Math-MPFR-4.44 but we have only version $Math::MPFR::VERSION\n",
+       " If Math-MPFR-4.44 is not yet on CPAN, install the devel version from the github repo\n at https://github.com/sisyphus/math-mpfr\n";
        is(1, 1);
+       done_testing();
        exit 0;
 }
 
