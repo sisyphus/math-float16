@@ -13,6 +13,7 @@ use overload
 '-'  => \&oload_sub,
 '*'  => \&oload_mul,
 '/'  => \&oload_div,
+'%'  => \&oload_fmod,
 '**' => \&oload_pow,
 
 '=='  => \&oload_equiv,
@@ -151,6 +152,16 @@ sub oload_pow {
      return _oload_pow($_[0], $coderef->($_[1]), $_[2]);
    }
    die "Unrecognized 2nd argument passed to oload_pow() function";
+}
+
+sub oload_fmod {
+   my $itsa = _itsa($_[1]);
+   return _oload_fmod(@_) if $itsa == 21;
+   if($itsa < 5) {
+     my $coderef = $Math::Float16::handler{$itsa};
+     return _oload_fmod($_[0], $coderef->($_[1]), $_[2]);
+   }
+   die "Unrecognized 2nd argument passed to oload_fmod() function";
 }
 
 sub oload_abs {
