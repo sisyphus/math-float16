@@ -416,8 +416,8 @@ SV * _oload_fmod(pTHX_  _Float16 * a,  _Float16 * b, SV * third) {
   obj_ref = newSV(0);
   obj = newSVrv(obj_ref, "Math::Float16");
 
-  if(SvTRUE_nomg_NN(third)) inex = mpfr_fmod(a0, b0, a0, MPFR_RNDN);  /* b ** a */
-  else inex =  mpfr_fmod(a0, a0, b0, MPFR_RNDN);                      /* a ** b */
+  if(SvTRUE_nomg_NN(third)) inex = mpfr_fmod(a0, b0, a0, MPFR_RNDN);  /* fmod(b, a) */
+  else inex =  mpfr_fmod(a0, a0, b0, MPFR_RNDN);                      /* fmod(a, b) */
 
   mpfr_subnormalize(a0, inex, MPFR_RNDN);
 
