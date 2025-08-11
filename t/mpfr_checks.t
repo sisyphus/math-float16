@@ -174,10 +174,19 @@ for my $p(@powers) {
   }
 }
 
-#my $f1 = Math::Float16->new('5.9605e-8');
-#my $f2 = Math::Float16->new('3.999e-1');
-#warn "DIV: ", $f1 / $f2, "\n"; # 1.7881e-7
-#print "$_\n" for @p;
+# Test that Math::MPFR::subnormalize_float16
+# fixes a known double-rounding anomaly.
+my $s = '8.94e-8';
+my $round = 0; # MPFR_RNDN
+my $mpfr_anom1 = Math::MPFR::Rmpfr_init2(11);
+Math::MPFR::Rmpfr_strtofr($mpfr_anom1, $s, 10, 0); # RNDN
+my $anom1 = Math::Float16->new($s);
+cmp_ok(unpack_f16_hex($anom1), 'eq', '0001', "direct assignment results in '0001'");
+cmp_ok(Math::MPFR::unpack_float16($mpfr_anom1, $round), 'eq', '0002', "indirect assignment results in '0002'");
+cmp_ok($anom1, '!=', Math::Float16->new($mpfr_anom1), "double-checked: values are different");
+my $mpfr_anom2 = Math::MPFR::subnormalize_float16($s);
+cmp_ok(Math::MPFR::unpack_float16($mpfr_anom2, $round), 'eq', '0001', "Math::MPFR::subnormalize_float16() ok");
+cmp_ok($anom1, '==', Math::Float16->new($mpfr_anom2), "double-checked: values are equivalent");
 
 done_testing();
 
