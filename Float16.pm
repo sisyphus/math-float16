@@ -79,9 +79,6 @@ $Math::Float16::f16_DENORM_MAX = Math::Float16->new(_get_denorm_max());         
 $Math::Float16::f16_NORM_MIN   = Math::Float16->new(2) ** (f16_EMIN + (f16_MANTBITS - 2)); # 6.1035e-5
 $Math::Float16::f16_NORM_MAX   = Math::Float16->new(_get_norm_max());                      # 6.5504e4
 
-_XS_set_emin(f16_EMIN);
-_XS_set_emax(f16_EMAX);
-
 sub new {
    shift if (@_ > 0 && !ref($_[0]) && _itsa($_[0]) == 4 && $_[0] eq "Math::Float16");
    if(!@_) { return _fromMPFR(Math::MPFR->new());}
@@ -242,6 +239,9 @@ sub f16_nextabove {
   if(is_f16_zero($_[0])) {
     f16_set($_[0], $Math::Float16::f16_DENORM_MIN);
   }
+  elsif(is_f16_inf($_[0]) == -1) {
+    f16_set($_[0], -$Math::Float16::f16_NORM_MAX);
+  }
   elsif($_[0] < $Math::Float16::f16_NORM_MIN && $_[0] >= -$Math::Float16::f16_NORM_MIN ) {
     $_[0] += $Math::Float16::f16_DENORM_MIN;
     f16_set_zero($_[0], -1) if is_f16_zero($_[0]);
@@ -254,6 +254,9 @@ sub f16_nextabove {
 sub f16_nextbelow {
   if(is_f16_zero($_[0])) {
     f16_set($_[0], -$Math::Float16::f16_DENORM_MIN);
+  }
+  elsif(is_f16_inf($_[0]) == 1) {
+    f16_set($_[0], $Math::Float16::f16_NORM_MAX);
   }
   elsif($_[0] <= $Math::Float16::f16_NORM_MIN && $_[0] > -$Math::Float16::f16_NORM_MIN ) {
     $_[0] -= $Math::Float16::f16_DENORM_MIN;

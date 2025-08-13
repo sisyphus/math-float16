@@ -20,18 +20,6 @@ if($Math::MPFR::VERSION < 4.44) {
        exit 0;
 }
 
-cmp_ok(Rmpfr_get_emin(), '!=', Math::Float16::_XS_get_emin(), "perl and xs have different values for mpfr_get_emin()");
-cmp_ok(Rmpfr_get_emax(), '!=', Math::Float16::_XS_get_emax(), "perl and xs have different values for mpfr_get_emax()");
-
-cmp_ok(Math::Float16::_XS_get_emin(), '==', f16_EMIN, "xs sets mpfr_get_emin() to expected value");
-cmp_ok(Math::Float16::_XS_get_emax(), '==', f16_EMAX,"xs sets mpfr_get_emax() to expected value");
-SET_EMIN_EMAX();
-cmp_ok(Math::Float16::_XS_get_emin(), '==', f16_EMIN, "xs mpfr_get_emin() still set to expected value");
-cmp_ok(Math::Float16::_XS_get_emax(), '==', f16_EMAX,"xs mpfr_get_emax() still set to expected value");
-RESET_EMIN_EMAX();
-cmp_ok(Math::Float16::_XS_get_emin(), '==', f16_EMIN, "xs mpfr_get_emin() still correct");
-cmp_ok(Math::Float16::_XS_get_emax(), '==', f16_EMAX,"xs mpfr_get_emax() still correct");
-
 Rmpfr_set_default_prec(f16_MANTBITS);
 
 my $f16_rop = Math::Float16->new();
