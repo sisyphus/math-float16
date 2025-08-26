@@ -22,5 +22,9 @@ cmp_ok($bf_max, '==', $Math::Float16::f16_NORM_MAX, "max Math::Float16 value is 
 cmp_ok( (is_f16_inf($bf_max + (2 ** 4))), '==', 1, "specified value is +Inf");
 cmp_ok( (is_f16_inf($bf_max + (2 ** 3))), '==', 0, "specified value is finite");
 
+my $mpfr = Math::MPFR->new();
+Math::MPFR::Rmpfr_set_inf($mpfr, 1);
+cmp_ok(Math::Float16->new($mpfr),  '==', $pinf, "MPFR('Inf')  assigns correctly");
+cmp_ok(Math::Float16->new(-$mpfr), '==', $ninf, "MPFR('-Inf') assigns correctly");
 
 done_testing();
