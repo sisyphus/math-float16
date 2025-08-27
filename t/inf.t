@@ -27,4 +27,7 @@ Math::MPFR::Rmpfr_set_inf($mpfr, 1);
 cmp_ok(Math::Float16->new($mpfr),  '==', $pinf, "MPFR('Inf')  assigns correctly");
 cmp_ok(Math::Float16->new(-$mpfr), '==', $ninf, "MPFR('-Inf') assigns correctly");
 
+cmp_ok(is_f16_inf(Math::Float16->new(~0)), '==', 1, "~0 is +Inf");
+cmp_ok(is_f16_inf(Math::Float16->new(-(~0 >> 2))), '==', -1, "-(~0 >> 2) is -Inf");
+
 done_testing();

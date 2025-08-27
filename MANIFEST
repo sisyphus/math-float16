@@ -6,6 +6,7 @@ Float16.pod
 Float16.xs
 have_float16.in
 t/basic.t
+t/fake_checks.t
 t/inf.t
 t/mpfr_checks.t
 t/new.t
