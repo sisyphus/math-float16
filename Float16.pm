@@ -5,7 +5,7 @@ use Math::MPFR qw(:mpfr);
 
 use constant f16_EMIN     => -23;
 use constant f16_EMAX     =>  16;
-use constant f16_MANTBITS =>    11;
+use constant f16_MANTBITS =>  11;
 
 
 use overload
@@ -267,6 +267,8 @@ sub f16_nextbelow {
 }
 
 sub unpack_f16_hex {
+  die "Math::Float16::unpack_f16_hex() accepts only a Math::Float16 object as its argument"
+    unless ref($_[0]) eq "Math::Float16";
   my @ret = _unpack_f16_hex($_[0]);
   return join('', @ret);
 }
