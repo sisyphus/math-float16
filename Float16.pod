@@ -15,7 +15,7 @@
 
 =head1 DESCRIPTION
 
- Perform  _Float16 (brain float) arithmetic  in perl.
+ Perform _Float16 arithmetic  in perl.
 
 =head1 SYNOPSIS
 
@@ -136,11 +136,9 @@
     $nv then holds exactly the same value as $obj.
 
    $MPFR_OBJECT = f16_to_MPFR($obj);
+    (It's advisable to load Math::MPFR before calling this function.)
     Return the value of $obj as an 11-bit precision Math::MPFR object.
     This Math::MPFR object holds exactly the same value as $obj.
-    This is the function that the overloading of interpolation calls.
-    The instructions "print $obj;" and "print f16_to_MPFR($obj);"
-    will therefore produce exactly the same output.
 
    f16_nextabove($obj);
     Increments the value in $obj by the smallest possible positive,
