@@ -1,0 +1,8 @@
+#include <stdio.h>
+#include <mpfr.h>
+
+int main(void) {
+ if(mpfr_buildopt_float16_p()) printf("%d", 1);
+ else printf("%d", 0);
+ return 0;
+}

@@ -4,15 +4,20 @@ use Math::Float16 qw(:all);
 
 use Test::More;
 
-my($have_gmpf, $have_gmpq) = (0, 0);
+my($have_gmpf, $have_gmpq, $have_mpfr) = (0, 0, 0);
 
-eval { require Math::GMPf };
+eval { require Math::GMPf;};
 $have_gmpf = 1 unless $@;
 
-eval { require Math::GMPq };
+eval { require Math::GMPq;};
 $have_gmpq = 1 unless $@;
 
-my @inputs = ('1.5', '-1.75', 2.625, Math::MPFR->new(3.875), 42);
+eval { require Math::MPFR;};
+$have_mpfr = 1 unless $@;
+
+my @inputs = ('1.5', '-1.75', 2.625, 42);
+
+push(@inputs, Math::MPFR->new(3.875)) if $have_mpfr;
 
 #push(@inputs, Math::GMPf->new(5.25)) if $have_gmpf;
 push(@inputs, Math::GMPq->new('3/4')) if $have_gmpq;

@@ -648,6 +648,42 @@ void _XS_set_emax(pTHX_ SV * in) {
   mpfr_set_emax((mpfr_exp_t)SvIV(in));
 }
 
+void _deref2(pTHX_ mpfr_t * p, SV * base, SV * n_digits, SV * round) {
+  dXSARGS;
+  char * out;
+  mpfr_exp_t ptr;
+  PERL_UNUSED_ARG(items);
+
+  if(!(SvIOK(base) && ((SvIVX(base) >= 2 && SvIVX(base) <= 62) || (SvIVX(base) >= -36 && SvIVX(base) <= -2))))
+    croak("Second argument (base) supplied to Math::Float16::_deref2 is not in acceptable range");
+
+  out = mpfr_get_str(NULL, &ptr, (int)SvIV(base), (unsigned long)SvUV(n_digits), *p, (mpfr_rnd_t)SvUV(round));
+
+  if(out == NULL) croak("An error occurred in memory allocation in mpfr_get_str\n");
+
+  ST(0) = newSVpvn_flags(out,strlen(out),SVs_TEMP);
+  mpfr_free_str(out);
+  ST(1) = sv_2mortal(newSViv(ptr));
+  XSRETURN(2);
+}
+
+int _buildopt_float16_p(void) {
+#if MPFR_VERSION >= 262912 /* 4.3.0 */
+  return mpfr_buildopt_float16_p();
+#else
+  warn("mpfr_buildopt_float16_p function not implemented until mpfr-4.3.0. (You have only version %s) ", MPFR_VERSION_STRING);
+  return 0;
+#endif
+}
+
+int _MPFR_VERSION(void) {
+  return (int)MPFR_VERSION;
+}
+
+SV * _MPFR_VERSION_STRING(pTHX) {
+  return newSVpv(MPFR_VERSION_STRING, 0);
+}
+
 void DESTROY(SV * obj) {
   /* printf("Destroying object\n"); *//* debugging check */
   Safefree(INT2PTR( _Float16 *, SvIVX(SvRV(obj))));
@@ -1063,6 +1099,40 @@ _XS_set_emax (in)
         }
         /* must have used dXSARGS; list context implied */
         return;
+
+void
+_deref2 (p, base, n_digits, round)
+	mpfr_t *	p
+	SV *	base
+	SV *	n_digits
+	SV *	round
+        PREINIT:
+        I32* temp;
+        PPCODE:
+        temp = PL_markstack_ptr++;
+        _deref2(aTHX_ p, base, n_digits, round);
+        if (PL_markstack_ptr != temp) {
+          /* truly void, because dXSARGS not invoked */
+          PL_markstack_ptr = temp;
+          XSRETURN_EMPTY; /* return empty stack */
+        }
+        /* must have used dXSARGS; list context implied */
+        return;
+
+int
+_buildopt_float16_p ()
+
+
+int
+_MPFR_VERSION ()
+
+
+SV *
+_MPFR_VERSION_STRING ()
+CODE:
+  RETVAL = _MPFR_VERSION_STRING (aTHX);
+OUTPUT:  RETVAL
+
 
 void
 DESTROY (obj)

@@ -1,0 +1,8 @@
+#include <stdio.h>
+#include <mpfr.h>
+
+int main(void) {
+ printf("%d", MPFR_VERSION);
+ return 0;
+}
+

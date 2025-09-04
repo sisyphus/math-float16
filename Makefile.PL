@@ -22,53 +22,69 @@ if($Config{ptrsize} == 4) {
 
 my $have_float16 = 0;
 my $mycc = $Config{cc};
+my $ccflags = $Config{ccflags};
 #$mycc .= ' -msse2' if $Config{ptrsize} == 4;
 
-my $out = `$mycc -o have_float16.exe -x c have_float16.in 2>&1`;
+my $out = `$mycc $ccflags -o have_float16.exe -x c have_float16.in 2>&1`;
 if( -e 'have_float16.exe') {
   my $size = $^O =~ /MSWin32/i ? `have_float16.exe` : `./have_float16.exe`;
   $have_float16 = 1 if $size eq '2';
 }
 
 if(!$have_float16) {
-  warn "Aborting build of Math::Float16 because the  _Float16 type is not recognized by your compiler";
+  warn "Aborting build of Math::Float16 because the  _Float16 type is not recognized by your compiler.\n",
+       " Build output was:\n $out\n";
   exit 0;
 }
 
-unlink "./have_float16.exe"; # No longer needed - leaving it in place can cause confusion.
+###########################################
+# Check presence of suitable mpfr library #
+###########################################
 
-eval { require Math::MPFR;};
+my ($mpfr_ver_ok, $mpfr_opt_ok, $version, $opt) = (0, 0, 0, 0);
 
-if($@) {
-  warn "\n Aborting build of Math::Float16 because Math::MPFR failed to load.\n",
-       " Please install latest release of Math::MPFR from CPAN, and then try again.\n",
-       " See also the README file.\n";
+$out = `$mycc $ccflags -o mpfr_ver.exe -x c mpfr_ver.in 2>&1`;
+if( -e 'mpfr_ver.exe') {
+  $version = $^O =~ /MSWin32/i ? `mpfr_ver.exe` : `./mpfr_ver.exe`;
+  $mpfr_ver_ok = 1 if $version >= 262912;
+}
+else {
+  warn "\n Aborting build of Math::Float16 because the C program mpfr_ver.in failed to build.\n",
+       " Build output was:\n $out\n";
   exit 0;
 }
 
-if($Math::MPFR::VERSION < '4.43') {
-  warn "\n Aborting build of Math::Float16 because the installed version ($Math::MPFR::VERSION) is too old.\n",
-       " We need at least version 4.43. See the README file.\n",
-       " Please install latest release of Math::MPFR from CPAN, and then try again.\n";
+unless($mpfr_ver_ok) {
+  warn "\n Aborting build of Math::Float16 because mpfr (version $version) is less than 262912\n";
   exit 0;
 }
 
-if(Math::MPFR::MPFR_VERSION() < 262912) {
-  warn "\n Aborting build of Math::Float16 because Math::MPFR has been built\n",
-       " against an mpfr C library that is too old.\n",
-       " The library needs to be at version 4.3.0 or later. This is only ", Math::MPFR::MPFR_VERSION_STRING(), "\n",
-       " See the README file.\n";
+##########################################
+
+my $mylibpth;
+my @libpth = split /\s+/, $Config{libpth};
+for(@libpth) { $mylibpth .= " -L$_" }
+$mylibpth .= " -lmpfr -lgmp";
+
+$out = `$mycc $ccflags -o mpfr_opt.exe -x c mpfr_opt.in $mylibpth 2>&1`;
+if( -e 'mpfr_opt.exe') {
+  $opt = $^O =~ /MSWin32/i ? `mpfr_opt.exe` : `./mpfr_opt.exe`;
+  $mpfr_opt_ok = 1 if $opt == 1;
+}
+else {
+  warn "\n Aborting build of Math::Float16 because the C program mpfr_opt.in failed to build.\n",
+       " Build output was:\n $out\n";
   exit 0;
 }
 
-my $build_opt = Math::MPFR::Rmpfr_buildopt_float16_p();
-
-unless($build_opt) {
-  warn "\n Aborting because the mpfr C library against which Math::MPFR has been\n",
-       " built does not support the  _Float16 type.\n",
-       " See the README file.\n";
+unless($mpfr_opt_ok) {
+  warn "\n Aborting build of Math::Float16 because mpfr was built without __bf16 support\n";
   exit 0;
 }
+
+###############################################
+
+my $defines = $Config::Config{byteorder} =~ /^1234/ ? " -DWE_HAVE_LENDIAN" : " -DWE_HAVE_BENDIAN";
 
 my %options = (
   NAME         => 'Math::Float16',
@@ -77,6 +93,7 @@ my %options = (
   LICENSE      => 'perl',
   VERSION_FROM => 'Float16.pm',
   LIBS         =>  ['-lmpfr -lgmp -lquadmath'],
+  DEFINE       =>  $defines,
   clean        => { FILES => '*.exe *.txt' },
   META_MERGE   => {
     'meta-spec'  => { version => 2 },

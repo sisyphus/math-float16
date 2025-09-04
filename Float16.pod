@@ -3,7 +3,7 @@
 
 =head1 NAME
 
- Math::Float16 - perl interface to the  _Float16 floating point type.
+ Math::Float16 - perl interface to the _Float16 floating point type.
 
 =head1 DEPENDENCIES
 

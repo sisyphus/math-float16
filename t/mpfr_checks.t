@@ -1,15 +1,26 @@
 use strict;
 use warnings;
 
-use Math::MPFR qw(:mpfr);
+
 use Math::Float16 qw(:all);
 
 use Test::More;
 
-use constant EMIN_ORIG => Rmpfr_get_emin();
-use constant EMAX_ORIG => Rmpfr_get_emax();
-use constant EMIN_MOD  => f16_EMIN;
-use constant EMAX_MOD  => f16_EMAX;
+eval {require Math::MPFR;};
+if($@) {
+  warn "\n Aborting this test script:\n",
+       " This test script needs Math-MPFR-4.44 but Math::MPFR has failed to load\n",
+       " \$\@ contained :\n$@\n";
+       is(1, 1);
+       done_testing();
+       exit 0;
+}
+
+
+my $EMIN_ORIG = Math::MPFR::Rmpfr_get_emin();
+my $EMAX_ORIG = Math::MPFR::Rmpfr_get_emax();
+my $EMIN_MOD  = f16_EMIN;
+my $EMAX_MOD  = f16_EMAX;
 
 if($Math::MPFR::VERSION < 4.44) {
   warn "\n Aborting this test script:\n",
@@ -20,7 +31,7 @@ if($Math::MPFR::VERSION < 4.44) {
        exit 0;
 }
 
-Rmpfr_set_default_prec(f16_MANTBITS);
+Math::MPFR::Rmpfr_set_default_prec(f16_MANTBITS);
 
 my $f16_rop = Math::Float16->new();
 my $mpfr_rop = Math::MPFR->new();
@@ -36,12 +47,12 @@ my @p = (  (2 ** (f16_EMIN -1)),
 
 for my $v(@p) {
   my $f16_1 = Math::Float16->new($v);
-  Rmpfr_set_FLOAT16($mpfr_rop, $f16_1, MPFR_RNDN);
+  Math::MPFR::Rmpfr_set_FLOAT16($mpfr_rop, $f16_1, 0);
   SET_EMIN_EMAX();
-  my $inex = Rmpfr_sqrt($mpfr_rop, $mpfr_rop, MPFR_RNDN);
-  Rmpfr_subnormalize($mpfr_rop, $inex, MPFR_RNDN);
+  my $inex = Math::MPFR::Rmpfr_sqrt($mpfr_rop, $mpfr_rop, 0);
+  Math::MPFR::Rmpfr_subnormalize($mpfr_rop, $inex, 0);
   RESET_EMIN_EMAX();
-  Rmpfr_get_FLOAT16($f16_rop, $mpfr_rop, MPFR_RNDN);
+  Math::MPFR::Rmpfr_get_FLOAT16($f16_rop, $mpfr_rop, 0);
   cmp_ok($f16_rop, '==', sqrt($f16_1), "sqrt($v): Math::MPFR & Math::Float16 concur");
 }
 
@@ -66,28 +77,28 @@ for my $v1(@p) {
 
 for my $v(@p) {
   my $f16_1 = Math::Float16->new($v);
-  Rmpfr_set_FLOAT16($mpfr_rop, $f16_1, MPFR_RNDN);
+  Math::MPFR::Rmpfr_set_FLOAT16($mpfr_rop, $f16_1, 0);
   SET_EMIN_EMAX();
-  my $inex = Rmpfr_sqr($mpfr_rop, $mpfr_rop, MPFR_RNDN);
-  Rmpfr_subnormalize($mpfr_rop, $inex, MPFR_RNDN);
+  my $inex = Math::MPFR::Rmpfr_sqr($mpfr_rop, $mpfr_rop, 0);
+  Math::MPFR::Rmpfr_subnormalize($mpfr_rop, $inex, 0);
   RESET_EMIN_EMAX();
-  Rmpfr_get_FLOAT16($f16_rop, $mpfr_rop, MPFR_RNDN);
+  Math::MPFR::Rmpfr_get_FLOAT16($f16_rop, $mpfr_rop, 0);
   cmp_ok($f16_rop, '==', $f16_1 ** 2, "$v ** 2: Math::MPFR & Math::Float16 concur");
 }
 
 for my $v(@p) {
   my $f16_1 = Math::Float16->new($v);
-  Rmpfr_set_FLOAT16($mpfr_rop, $f16_1, MPFR_RNDN);
-  Rmpfr_log($mpfr_rop, $mpfr_rop, MPFR_RNDN);
-  Rmpfr_get_FLOAT16($f16_rop, $mpfr_rop, MPFR_RNDN);
+  Math::MPFR::Rmpfr_set_FLOAT16($mpfr_rop, $f16_1, 0);
+  Math::MPFR::Rmpfr_log($mpfr_rop, $mpfr_rop, 0);
+  Math::MPFR::Rmpfr_get_FLOAT16($f16_rop, $mpfr_rop, 0);
   cmp_ok($f16_rop, '==', log($f16_1), "log($v): Math::MPFR & Math::Float16 concur");
 }
 
 for my $v(@p) {
   my $f16_1 = Math::Float16->new($v);
-  Rmpfr_set_FLOAT16($mpfr_rop, $f16_1, MPFR_RNDN);
-  Rmpfr_exp($mpfr_rop, $mpfr_rop, MPFR_RNDN);
-  Rmpfr_get_FLOAT16($f16_rop, $mpfr_rop, MPFR_RNDN);
+  Math::MPFR::Rmpfr_set_FLOAT16($mpfr_rop, $f16_1, 0);
+  Math::MPFR::Rmpfr_exp($mpfr_rop, $mpfr_rop, 0);
+  Math::MPFR::Rmpfr_get_FLOAT16($f16_rop, $mpfr_rop, 0);
   cmp_ok($f16_rop, '==', exp($f16_1), "exp($v): Math::MPFR & Math::Float16 concur");
 }
 
@@ -97,11 +108,11 @@ for my $p(@powers) {
   my $pow = Math::MPFR->new($p);
   for my $v(@p) {
     my $f16_1 = Math::Float16->new($v);
-    Rmpfr_set_FLOAT16($mpfr_rop, $f16_1, MPFR_RNDN);
+    Math::MPFR::Rmpfr_set_FLOAT16($mpfr_rop, $f16_1, 0);
     SET_EMIN_EMAX();
-    my $inex = Rmpfr_pow($mpfr_rop, $mpfr_rop, $pow, MPFR_RNDN);
-    Rmpfr_subnormalize($mpfr_rop, $inex, MPFR_RNDN);
-    Rmpfr_get_FLOAT16($f16_rop, $mpfr_rop, MPFR_RNDN);
+    my $inex = Math::MPFR::Rmpfr_pow($mpfr_rop, $mpfr_rop, $pow, 0);
+    Math::MPFR::Rmpfr_subnormalize($mpfr_rop, $inex, 0);
+    Math::MPFR::Rmpfr_get_FLOAT16($f16_rop, $mpfr_rop, 0);
     cmp_ok($f16_rop, '==', $f16_1 ** "$pow", "$v ** '$pow': Math::MPFR & Math::Float16 concur");
   }
 }
@@ -110,12 +121,12 @@ for my $p(@powers) {
   my $pow = Math::MPFR->new($p);
   for my $v(@p) {
     my $f16_1 = Math::Float16->new($v);
-    Rmpfr_set_FLOAT16($mpfr_rop, $f16_1, MPFR_RNDN);
+    Math::MPFR::Rmpfr_set_FLOAT16($mpfr_rop, $f16_1, 0);
     SET_EMIN_EMAX();
-    my $inex = Rmpfr_mul($mpfr_rop, $mpfr_rop, $pow, MPFR_RNDN);
-    Rmpfr_subnormalize($mpfr_rop, $inex, MPFR_RNDN);
+    my $inex = Math::MPFR::Rmpfr_mul($mpfr_rop, $mpfr_rop, $pow, 0);
+    Math::MPFR::Rmpfr_subnormalize($mpfr_rop, $inex, 0);
     RESET_EMIN_EMAX();
-    Rmpfr_get_FLOAT16($f16_rop, $mpfr_rop, MPFR_RNDN);
+    Math::MPFR::Rmpfr_get_FLOAT16($f16_rop, $mpfr_rop, 0);
     cmp_ok($f16_rop, '==', $f16_1 * "$pow", "'$v * $pow': Math::MPFR & Math::Float16 concur");
   }
 }
@@ -124,12 +135,12 @@ for my $p(@powers) {
   my $pow = Math::MPFR->new($p);
   for my $v(@p) {
     my $f16_1 = Math::Float16->new($v);
-    Rmpfr_set_FLOAT16($mpfr_rop, $f16_1, MPFR_RNDN);
+    Math::MPFR::Rmpfr_set_FLOAT16($mpfr_rop, $f16_1, 0);
     SET_EMIN_EMAX();
-    my $inex = Rmpfr_div($mpfr_rop, $mpfr_rop, $pow, MPFR_RNDN);
-    Rmpfr_subnormalize($mpfr_rop, $inex, MPFR_RNDN);
+    my $inex = Math::MPFR::Rmpfr_div($mpfr_rop, $mpfr_rop, $pow, 0);
+    Math::MPFR::Rmpfr_subnormalize($mpfr_rop, $inex, 0);
     RESET_EMIN_EMAX();
-    Rmpfr_get_FLOAT16($f16_rop, $mpfr_rop, MPFR_RNDN);
+    Math::MPFR::Rmpfr_get_FLOAT16($f16_rop, $mpfr_rop, 0);
     cmp_ok($f16_rop, '==', $f16_1 / "$pow", "$v / '$pow': Math::MPFR & Math::Float16 concur");
   }
 }
@@ -138,12 +149,12 @@ for my $p(@powers) {
   my $pow = Math::MPFR->new($p);
   for my $v(@p) {
     my $f16_1 = Math::Float16->new($v);
-    Rmpfr_set_FLOAT16($mpfr_rop, $f16_1, MPFR_RNDN);
+    Math::MPFR::Rmpfr_set_FLOAT16($mpfr_rop, $f16_1, 0);
     SET_EMIN_EMAX();
-    my $inex = Rmpfr_add($mpfr_rop, $mpfr_rop, $pow, MPFR_RNDN);
-    Rmpfr_subnormalize($mpfr_rop, $inex, MPFR_RNDN);
+    my $inex = Math::MPFR::Rmpfr_add($mpfr_rop, $mpfr_rop, $pow, 0);
+    Math::MPFR::Rmpfr_subnormalize($mpfr_rop, $inex, 0);
     RESET_EMIN_EMAX();
-    Rmpfr_get_FLOAT16($f16_rop, $mpfr_rop, MPFR_RNDN);
+    Math::MPFR::Rmpfr_get_FLOAT16($f16_rop, $mpfr_rop, 0);
     cmp_ok($f16_rop, '==', $f16_1 + "$pow", "$v + '$pow': Math::MPFR & Math::Float16 concur");
   }
 }
@@ -152,12 +163,12 @@ for my $p(@powers) {
   my $pow = Math::MPFR->new($p);
   for my $v(@p) {
     my $f16_1 = Math::Float16->new($v);
-    Rmpfr_set_FLOAT16($mpfr_rop, $f16_1, MPFR_RNDN);
+    Math::MPFR::Rmpfr_set_FLOAT16($mpfr_rop, $f16_1, 0);
     SET_EMIN_EMAX();
-    my $inex = Rmpfr_sub($mpfr_rop, $mpfr_rop, $pow, MPFR_RNDN);
-    Rmpfr_subnormalize($mpfr_rop, $inex, MPFR_RNDN);
+    my $inex = Math::MPFR::Rmpfr_sub($mpfr_rop, $mpfr_rop, $pow, 0);
+    Math::MPFR::Rmpfr_subnormalize($mpfr_rop, $inex, 0);
     RESET_EMIN_EMAX();
-    Rmpfr_get_FLOAT16($f16_rop, $mpfr_rop, MPFR_RNDN);
+    Math::MPFR::Rmpfr_get_FLOAT16($f16_rop, $mpfr_rop, 0);
     cmp_ok($f16_rop, '==', $f16_1 - "$pow", "$v - '$pow': Math::MPFR & Math::Float16 concur");
   }
 }
@@ -165,7 +176,7 @@ for my $p(@powers) {
 # Test that Math::MPFR::subnormalize_float16
 # fixes a known double-rounding anomaly.
 my $s = '8.94e-8';
-my $round = 0; # MPFR_RNDN
+my $round = 0; # 0
 my $mpfr_anom1 = Math::MPFR::Rmpfr_init2(11);
 Math::MPFR::Rmpfr_strtofr($mpfr_anom1, $s, 10, 0); # RNDN
 my $anom1 = Math::Float16->new($s);
@@ -179,13 +190,13 @@ cmp_ok($anom1, '==', Math::Float16->new($mpfr_anom2), "double-checked: values ar
 done_testing();
 
 sub SET_EMIN_EMAX {
-  Rmpfr_set_emin(EMIN_MOD);
-  Rmpfr_set_emax(EMAX_MOD);
+  Math::MPFR::Rmpfr_set_emin($EMIN_MOD);
+  Math::MPFR::Rmpfr_set_emax($EMAX_MOD);
 }
 
 sub RESET_EMIN_EMAX {
-  Rmpfr_set_emin(EMIN_ORIG);
-  Rmpfr_set_emax(EMAX_ORIG);
+  Math::MPFR::Rmpfr_set_emin($EMIN_ORIG);
+  Math::MPFR::Rmpfr_set_emax($EMAX_ORIG);
 }
 
 

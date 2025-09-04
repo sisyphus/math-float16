@@ -5,6 +5,8 @@ Float16.pm
 Float16.pod
 Float16.xs
 have_float16.in
+mpfr_ver.in
+mpfr_opt.in
 t/basic.t
 t/fake_checks.t
 t/inf.t
@@ -14,5 +16,6 @@ t/next.t
 t/overload_arith.t
 t/overload_cmp.t
 t/subnormal.t
+t/unpack.t
 README
 typemap
