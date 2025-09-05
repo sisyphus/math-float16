@@ -53,7 +53,7 @@ my @tagged = qw( f16_to_NV f16_to_MPFR
                  is_f16_nan is_f16_inf is_f16_zero f16_set_nan f16_set_inf f16_set_zero
                  f16_set
                  f16_nextabove f16_nextbelow
-                 unpack_f16_hex
+                 unpack_f16_hex pack_f16_hex
                  f16_EMIN f16_EMAX f16_MANTBITS
                );
 
@@ -317,6 +317,23 @@ sub _get_denorm_max {
   my $min = $max - (f16_MANTBITS - 2);
   for my $p($min .. $max) { $ret += 2 ** -$p }
   return $ret;
+}
+
+sub pack_f16_hex {
+  my $arg = shift;
+  my $is_neg = '';
+  die "Invalid argument ($arg) given to pack_f16_hex"
+    if(length($arg) != 4 || $arg =~ /[^0-9a-fA-F]/);
+
+  my $binstr = unpack 'B16', pack 'H4', $arg;
+  $is_neg = '-' if substr($binstr, 0, 1) eq '1';
+  my $power = oct('0b' .substr($binstr,1, 5)) - 15;
+  my $prefix = '0b1.';
+  if($power < -14) { # Subnormal
+    $power = -14;
+    $prefix = '0b0.';
+  }
+  return Math::Float16->new($is_neg . $prefix . substr($binstr,6, 10) . "p$power");
 }
 
 1;

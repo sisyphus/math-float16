@@ -36,11 +36,24 @@ if($have_mpfr) {
   cmp_ok(unpack_f16_hex($inc), 'eq', '0000', " 0 unpacks to 0000");
   cmp_ok(unpack_f16_hex($dec), 'eq', '8000', "-0 unpacks to 8000");
 
+  my $pack = pack_f16_hex('0000');
+  cmp_ok(ref($pack), 'eq', "Math::Float16", "'0000': pack returns Math::Float16 object");
+  cmp_ok(is_f16_zero($pack), '==', 1, "returns 0 as expected");
+
+  $pack = pack_f16_hex('8000');
+  cmp_ok(ref($pack), 'eq', "Math::Float16", "'8000': pack returns Math::Float16 object");
+  cmp_ok(is_f16_zero($pack), '==', -1, "returns -0 as expected");
+
   for(1..31744) {
     f16_nextabove($inc);
     f16_nextbelow($dec);
     my $unpack_inc = unpack_f16_hex($inc);
+    my $pack_inc = pack_f16_hex($unpack_inc);
+    cmp_ok($pack_inc, '==', $inc, "$unpack_inc: round_trip ok");
+
     my $unpack_dec = unpack_f16_hex($dec);
+    my $pack_dec = pack_f16_hex($unpack_dec);
+    cmp_ok($pack_dec, '==', $dec, "$unpack_dec: round_trip ok");
 
     cmp_ok(length($unpack_inc), '==', 4, "length($unpack_inc) == 4");
     cmp_ok(length($unpack_dec), '==', 4, "length($unpack_inc) == 4");
@@ -56,3 +69,4 @@ if($have_mpfr) {
 }
 
 done_testing();
+
